@@ -1,4 +1,4 @@
-// FULL DEBUG LOGIN.JSX
+import api from "../api/api";
 
 import {
   useState,
@@ -7,9 +7,6 @@ import {
 import {
   useNavigate,
 } from "react-router-dom";
-
-import axios
-from "axios";
 
 export default function Login() {
 
@@ -63,9 +60,9 @@ export default function Login() {
       /* REQUEST */
 
       const response =
-        await axios.post(
+        await api.post(
 
-          "http://localhost:5000/api/auth/login",
+          "/auth/login",
 
           {
             email,
@@ -158,8 +155,6 @@ export default function Login() {
           tracking launches.
         </p>
 
-        {/* ERROR */}
-
         {
 
           error && (
@@ -178,8 +173,6 @@ export default function Login() {
             </p>
           )
         }
-
-        {/* EMAIL */}
 
         <input
 
@@ -200,8 +193,6 @@ export default function Login() {
 
         />
 
-        {/* PASSWORD */}
-
         <input
 
           type="password"
@@ -221,10 +212,9 @@ export default function Login() {
 
         />
 
-        {/* BUTTON */}
-
         <button
           type="submit"
+          disabled={loading}
         >
 
           {
