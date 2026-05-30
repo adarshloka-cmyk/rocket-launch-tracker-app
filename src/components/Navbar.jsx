@@ -2,7 +2,16 @@ import {
   Link,
 } from "react-router-dom";
 
+import {
+  useAuth,
+} from "../context/AuthContext";
+
 export default function Navbar(props) {
+
+  const {
+    user,
+    logout,
+  } = useAuth();
 
   return (
 
@@ -21,17 +30,42 @@ export default function Navbar(props) {
         <Link to="/favourites">
           Favourites
         </Link>
-        <Link to="/login">
-  Login
-</Link>
 
-<Link to="/signup">
-  Signup
-</Link>
+        {
 
-<Link to="/profile">
-  Profile
-</Link>
+          user ? (
+
+            <>
+
+              <Link to="/profile">
+                Profile
+              </Link>
+
+              <button
+                onClick={logout}
+                className="nav-btn"
+              >
+                Logout
+              </button>
+
+            </>
+
+          ) : (
+
+            <>
+
+              <Link to="/login">
+                Login
+              </Link>
+
+              <Link to="/signup">
+                Signup
+              </Link>
+
+            </>
+
+          )
+        }
 
       </div>
 
@@ -40,9 +74,11 @@ export default function Navbar(props) {
         onClick={props.toggleTheme}
       >
 
-        {props.darkMode
-          ? "☀️ Light"
-          : "🌙 Dark"}
+        {
+          props.darkMode
+            ? "☀️ Light"
+            : "🌙 Dark"
+        }
 
       </button>
 

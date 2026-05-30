@@ -8,6 +8,10 @@ import {
   useNavigate,
 } from "react-router-dom";
 
+import {
+  useAuth,
+} from "../context/AuthContext";
+
 export default function Login() {
 
   /* =========================
@@ -16,6 +20,14 @@ export default function Login() {
 
   const navigate =
     useNavigate();
+
+  /* =========================
+     AUTH
+  ========================= */
+
+  const {
+    login,
+  } = useAuth();
 
   /* =========================
      STATES
@@ -53,12 +65,6 @@ export default function Login() {
 
       setError("");
 
-      console.log(
-        "LOGIN STARTED"
-      );
-
-      /* REQUEST */
-
       const response =
         await api.post(
 
@@ -70,53 +76,24 @@ export default function Login() {
           }
         );
 
-      console.log(
-        "LOGIN SUCCESS:",
-        response.data
-      );
+      /* UPDATE AUTH CONTEXT */
 
-      /* SAVE TOKEN */
+      login(
 
-      localStorage.setItem(
-
-        "token",
+        response.data.user,
 
         response.data.token
       );
 
-      /* SAVE USER */
-
-      localStorage.setItem(
-
-        "user",
-
-        JSON.stringify(
-          response.data.user
-        )
-      );
-
       alert(
-        "Login successful 🚀"
+        "Login successful"
       );
 
       navigate("/");
 
     } catch (error) {
 
-      console.log(
-
-        "FULL LOGIN ERROR:",
-
-        error,
-
-        error.response,
-
-        error.response?.data,
-
-        error.response?.status,
-
-        error.message
-      );
+      console.log(error);
 
       setError(
 
@@ -147,7 +124,7 @@ export default function Login() {
       >
 
         <h1>
-          Login 🚀
+          Login
         </h1>
 
         <p>
@@ -223,7 +200,7 @@ export default function Login() {
 
               ? "Logging in..."
 
-              : "Login 🚀"
+              : "Login"
 
           }
 
