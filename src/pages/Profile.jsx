@@ -1,24 +1,15 @@
 import {
-
   useEffect,
-
   useState,
-
 } from "react";
 
 export default function Profile() {
 
-  const [user,
-    setUser] =
+  const [user, setUser] =
     useState(null);
 
-  const [loading,
-    setLoading] =
+  const [loading, setLoading] =
     useState(true);
-
-  /* =========================
-     LOAD PROFILE
-  ========================= */
 
   async function fetchProfile() {
 
@@ -32,8 +23,8 @@ export default function Profile() {
       if (!token) {
 
         setLoading(false);
-
         return;
+
       }
 
       const response =
@@ -42,13 +33,10 @@ export default function Profile() {
           "http://localhost:5000/api/profile",
 
           {
-
             headers: {
-
               Authorization:
                 `Bearer ${token}`,
             },
-
           }
         );
 
@@ -69,10 +57,6 @@ export default function Profile() {
 
   }
 
-  /* =========================
-     LOGOUT
-  ========================= */
-
   function logout() {
 
     localStorage.removeItem(
@@ -85,6 +69,7 @@ export default function Profile() {
 
     window.location.href =
       "/login";
+
   }
 
   useEffect(() => {
@@ -92,10 +77,6 @@ export default function Profile() {
     fetchProfile();
 
   }, []);
-
-  /* =========================
-     LOADING
-  ========================= */
 
   if (loading) {
 
@@ -107,11 +88,8 @@ export default function Profile() {
 
       </div>
     );
-  }
 
-  /* =========================
-     NOT LOGGED IN
-  ========================= */
+  }
 
   if (!user) {
 
@@ -120,11 +98,14 @@ export default function Profile() {
       <div className="profile-page">
 
         <h1>
+
           Please Login 🚀
+
         </h1>
 
       </div>
     );
+
   }
 
   return (
@@ -140,19 +121,29 @@ export default function Profile() {
         </div>
 
         <h1>
+
           {user.name}
+
         </h1>
 
         <p>
+
           {user.email}
+
         </p>
 
-        <div className="profile-info">
+        <div
+          className="profile-grid"
+        >
 
-          <div>
+          <div
+            className="profile-stat"
+          >
 
             <h3>
-              Favourites
+
+              ❤️ Favourites
+
             </h3>
 
             <span>
@@ -161,6 +152,60 @@ export default function Profile() {
                 user.favourites
                   ?.length || 0
               }
+
+            </span>
+
+          </div>
+
+          <div
+            className="profile-stat"
+          >
+
+            <h3>
+
+              🔐 Account
+
+            </h3>
+
+            <span>
+
+              User
+
+            </span>
+
+          </div>
+
+          <div
+            className="profile-stat"
+          >
+
+            <h3>
+
+              📧 Email
+
+            </h3>
+
+            <span>
+
+              Verified
+
+            </span>
+
+          </div>
+
+          <div
+            className="profile-stat"
+          >
+
+            <h3>
+
+              🚀 Launch Tracker
+
+            </h3>
+
+            <span>
+
+              Active
 
             </span>
 
@@ -180,4 +225,5 @@ export default function Profile() {
 
     </div>
   );
+
 }
