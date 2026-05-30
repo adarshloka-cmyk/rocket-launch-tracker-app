@@ -3,51 +3,52 @@ import {
   useState,
 } from "react";
 
+import {
+  useNavigate,
+} from "react-router-dom";
+
+import api
+from "../api/api";
+
+import {
+  useAuth,
+} from "../context/AuthContext";
+
 export default function Profile() {
 
-  const [user, setUser] =
+  const navigate =
+    useNavigate();
+
+  const {
+    logout,
+  } = useAuth();
+
+  const [user,
+    setUser] =
     useState(null);
 
-  const [loading, setLoading] =
+  const [loading,
+    setLoading] =
     useState(true);
 
   async function fetchProfile() {
 
     try {
 
-      const token =
-        localStorage.getItem(
-          "token"
-        );
-
-      if (!token) {
-
-        setLoading(false);
-        return;
-
-      }
-
       const response =
-        await fetch(
-
-          "http://localhost:5000/api/profile",
-
-          {
-            headers: {
-              Authorization:
-                `Bearer ${token}`,
-            },
-          }
+        await api.get(
+          "/profile"
         );
 
-      const data =
-        await response.json();
-
-      setUser(data);
+      setUser(
+        response.data
+      );
 
     } catch (error) {
 
       console.log(error);
+
+      setUser(null);
 
     } finally {
 
@@ -57,18 +58,11 @@ export default function Profile() {
 
   }
 
-  function logout() {
+  function handleLogout() {
 
-    localStorage.removeItem(
-      "token"
-    );
+    logout();
 
-    localStorage.removeItem(
-      "user"
-    );
-
-    window.location.href =
-      "/login";
+    navigate("/login");
 
   }
 
@@ -84,7 +78,7 @@ export default function Profile() {
 
       <div className="loading">
 
-        Loading Profile 🚀
+        Loading Profile...
 
       </div>
     );
@@ -99,7 +93,7 @@ export default function Profile() {
 
         <h1>
 
-          Please Login 🚀
+          Please Login
 
         </h1>
 
@@ -142,7 +136,7 @@ export default function Profile() {
 
             <h3>
 
-              ❤️ Favourites
+              Favourites
 
             </h3>
 
@@ -163,13 +157,13 @@ export default function Profile() {
 
             <h3>
 
-              🔐 Account
+              Account
 
             </h3>
 
             <span>
 
-              User
+              Active
 
             </span>
 
@@ -181,7 +175,7 @@ export default function Profile() {
 
             <h3>
 
-              📧 Email
+              Email
 
             </h3>
 
@@ -199,13 +193,13 @@ export default function Profile() {
 
             <h3>
 
-              🚀 Launch Tracker
+              Member Type
 
             </h3>
 
             <span>
 
-              Active
+              User
 
             </span>
 
@@ -214,7 +208,9 @@ export default function Profile() {
         </div>
 
         <button
-          onClick={logout}
+          onClick={
+            handleLogout
+          }
         >
 
           Logout
