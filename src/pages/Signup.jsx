@@ -1,207 +1,135 @@
-// FULL UPDATED SIGNUP.JSX
-
-import {
-  useState,
-} from "react";
-
-import {
-  useNavigate,
-} from "react-router-dom";
-
-import toast
-from "react-hot-toast";
-
-import api
-from "../api/api";
+import { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { motion, useReducedMotion } from "framer-motion";
+import toast from "react-hot-toast";
+import api from "../api/api";
 
 export default function Signup() {
+  const navigate = useNavigate();
+  const prefersReducedMotion = useReducedMotion();
 
-  /* =========================
-     NAVIGATION
-  ========================= */
+  const [formData, setFormData] = useState({
+    name: "",
+    email: "",
+    password: "",
+  });
 
-  const navigate =
-    useNavigate();
-
-  /* =========================
-     STATES
-  ========================= */
-
-  const [formData,
-    setFormData] =
-    useState({
-
-      name: "",
-      email: "",
-      password: "",
-    });
-
-  const [loading,
-    setLoading] =
-    useState(false);
-
-  /* =========================
-     HANDLE CHANGE
-  ========================= */
+  const [loading, setLoading] = useState(false);
 
   function handleChange(e) {
-
     setFormData({
-
       ...formData,
-
-      [e.target.name]:
-        e.target.value,
+      [e.target.name]: e.target.value,
     });
   }
 
-  /* =========================
-     HANDLE SUBMIT
-  ========================= */
-
-  async function handleSubmit(
-    e
-  ) {
-
+  async function handleSubmit(e) {
     e.preventDefault();
 
     try {
-
       setLoading(true);
 
-      const response =
-        await api.post(
+      const response = await api.post("/auth/signup", formData);
 
-          "/auth/signup",
+      const data = response.data;
 
-          formData
-        );
-
-      const data =
-        response.data;
-
-      toast.success(
-
-        data.message
-      );
+      toast.success(data.message);
 
       navigate("/login");
-
     } catch (error) {
-
       console.log(error);
 
       toast.error(
-
-        error.response?.data
-          ?.message ||
-
-        "Signup failed 🚀"
+        error.response?.data?.message || "Signup failed 🚀"
       );
-
     } finally {
-
       setLoading(false);
-
     }
-
   }
 
   return (
-
-    <div className="auth-page">
-
-      <form
-
-        className="auth-form"
-
-        onSubmit={handleSubmit}
-
+    <div className="ls-auth">
+      <motion.aside
+        className="ls-auth__brand"
+        initial={prefersReducedMotion ? false : { opacity: 0, x: -24 }}
+        animate={{ opacity: 1, x: 0 }}
+        transition={{ duration: 0.6 }}
       >
-
-        <h1>
-          Create Account 🚀
+        <p className="ls-auth__brand-eyebrow">LAUNCH SCOPE</p>
+        <h1 className="ls-auth__brand-title">
+          Join Mission Control.
         </h1>
-
-        <p>
-          Join the rocket launch
-          tracking platform.
+        <p className="ls-auth__brand-text">
+          Create an account to track launches worldwide and build your
+          mission watchlist.
         </p>
+      </motion.aside>
 
-        {/* NAME */}
+      <motion.div
+        className="ls-auth__panel"
+        initial={prefersReducedMotion ? false : { opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.55, delay: 0.1 }}
+      >
+        <form className="ls-auth__form" onSubmit={handleSubmit}>
+          <h2 className="ls-auth__form-title">Create account</h2>
+          <p className="ls-auth__form-sub">
+            Join the rocket launch tracking platform.
+          </p>
 
-        <input
+          <label className="ls-field">
+            <span className="ls-field__label">Full name</span>
+            <input
+              type="text"
+              name="name"
+              placeholder="Your name"
+              value={formData.name}
+              onChange={handleChange}
+              required
+              autoComplete="name"
+            />
+          </label>
 
-          type="text"
+          <label className="ls-field">
+            <span className="ls-field__label">Email</span>
+            <input
+              type="email"
+              name="email"
+              placeholder="you@mission.control"
+              value={formData.email}
+              onChange={handleChange}
+              required
+              autoComplete="email"
+            />
+          </label>
 
-          name="name"
+          <label className="ls-field">
+            <span className="ls-field__label">Password</span>
+            <input
+              type="password"
+              name="password"
+              placeholder="Create password"
+              value={formData.password}
+              onChange={handleChange}
+              required
+              autoComplete="new-password"
+            />
+          </label>
 
-          placeholder="Enter Name"
+          <button
+            type="submit"
+            className="ls-btn ls-btn--primary ls-btn--full"
+            disabled={loading}
+          >
+            {loading ? "Creating account..." : "Create account"}
+          </button>
 
-          value={formData.name}
-
-          onChange={handleChange}
-
-          required
-
-        />
-
-        {/* EMAIL */}
-
-        <input
-
-          type="email"
-
-          name="email"
-
-          placeholder="Enter Email"
-
-          value={formData.email}
-
-          onChange={handleChange}
-
-          required
-
-        />
-
-        {/* PASSWORD */}
-
-        <input
-
-          type="password"
-
-          name="password"
-
-          placeholder="Enter Password"
-
-          value={formData.password}
-
-          onChange={handleChange}
-
-          required
-
-        />
-
-        {/* BUTTON */}
-
-        <button
-          type="submit"
-        >
-
-          {
-
-            loading
-
-              ? "Creating Account..."
-
-              : "Signup 🚀"
-
-          }
-
-        </button>
-
-      </form>
-
+          <p className="ls-auth__switch">
+            Already have an account?{" "}
+            <Link to="/login">Sign in</Link>
+          </p>
+        </form>
+      </motion.div>
     </div>
   );
 }

@@ -1,374 +1,408 @@
+import { useEffect, useMemo, useState, useRef } from "react";
 import {
-  useEffect,
-  useMemo,
-  useState,
-} from "react";
+  motion,
+  useMotionValue,
+  useSpring,
+  useTransform,
+  useReducedMotion,
+} from "framer-motion";
+import { Link } from "react-router-dom";
+import LaunchCard from "../components/LaunchCard";
+import CustomSelect from "../components/CustomSelect";
 
-import LaunchCard
-from "../components/LaunchCard";
+const STATUS_OPTIONS = [
+  { value: "All", label: "All Statuses" },
+  { value: "Go", label: "Go" },
+  { value: "TBD", label: "TBD" },
+  { value: "Success", label: "Success" },
+  { value: "Failure", label: "Failure" },
+];
 
-export default function Home({
+const FALLBACK_HERO =
+  "https://images.unsplash.com/photo-1451187580459-43490279c0fa?auto=format&fit=crop&w=2400&q=80";
 
-  launches,
-
-  favourites,
-
-  toggleFavourite,
-
-}) {
-
-  /* =========================
-     STATES
-  ========================= */
-
-  const [search,
-    setSearch] =
-    useState("");
-
-  const [statusFilter,
-    setStatusFilter] =
-    useState("All");
-
-  const [providerFilter,
-    setProviderFilter] =
-    useState("All");
-
-  const [visibleCount,
-    setVisibleCount] =
-    useState(9);
-
-  const [filteredLaunches,
-    setFilteredLaunches] =
-    useState([]);
-
-  /* =========================
-     UNIQUE PROVIDERS
-  ========================= */
-
-  const providers =
-    useMemo(() => {
-
-      const names =
-        launches.map(
-
-          (launch) =>
-
-            launch
-              .launch_service_provider
-              ?.name
-        );
-
-      return [
-
-        "All",
-
-        ...new Set(names),
-      ];
-
-    }, [launches]);
-
-  /* =========================
-     FILTER LOGIC
-  ========================= */
+function useSpotlightCountdown(net) {
+  const [parts, setParts] = useState({
+    days: "00",
+    hours: "00",
+    minutes: "00",
+    seconds: "00",
+    launched: false,
+  });
 
   useEffect(() => {
+    if (!net) return;
 
-    let updated =
-      [...launches];
-
-    /* SEARCH */
-
-    updated =
-      updated.filter(
-
-        (launch) =>
-
-          launch.name
-            ?.toLowerCase()
-
-            .includes(
-              search.toLowerCase()
-            )
-      );
-
-    /* STATUS */
-
-    if (
-      statusFilter !== "All"
-    ) {
-
-      updated =
-        updated.filter(
-
-          (launch) =>
-
-            launch.status
-              ?.name ===
-            statusFilter
-        );
+    function tick() {
+      const distance = new Date(net).getTime() - Date.now();
+      if (distance <= 0) {
+        setParts({
+          days: "00",
+          hours: "00",
+          minutes: "00",
+          seconds: "00",
+          launched: true,
+        });
+        return;
+      }
+      setParts({
+        days: String(
+          Math.floor(distance / (1000 * 60 * 60 * 24))
+        ).padStart(2, "0"),
+        hours: String(
+          Math.floor(
+            (distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)
+          )
+        ).padStart(2, "0"),
+        minutes: String(
+          Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60))
+        ).padStart(2, "0"),
+        seconds: String(
+          Math.floor((distance % (1000 * 60)) / 1000)
+        ).padStart(2, "0"),
+        launched: false,
+      });
     }
 
-    /* PROVIDER */
+    tick();
+    const id = setInterval(tick, 1000);
+    return () => clearInterval(id);
+  }, [net]);
 
-    if (
-      providerFilter !== "All"
-    ) {
+  return parts;
+}
 
-      updated =
-        updated.filter(
+export default function Home({
+  launches,
+  favourites,
+  toggleFavourite,
+}) {
+  const prefersReducedMotion = useReducedMotion();
+  const launchesRef = useRef(null);
 
-          (launch) =>
+  const [search, setSearch] = useState("");
+  const [statusFilter, setStatusFilter] = useState("All");
+  const [providerFilter, setProviderFilter] = useState("All");
+  const [visibleCount, setVisibleCount] = useState(9);
+  const [filteredLaunches, setFilteredLaunches] = useState([]);
 
-            launch
-              .launch_service_provider
-              ?.name ===
-            providerFilter
-        );
-    }
+  const mouseX = useMotionValue(0);
+  const mouseY = useMotionValue(0);
+  const springX = useSpring(mouseX, { stiffness: 80, damping: 22 });
+  const springY = useSpring(mouseY, { stiffness: 80, damping: 22 });
+  const parallaxX = useTransform(springX, [-0.5, 0.5], [-18, 18]);
+  const parallaxY = useTransform(springY, [-0.5, 0.5], [-12, 12]);
+  const glowX = useTransform(springX, [-0.5, 0.5], ["42%", "58%"]);
+  const glowY = useTransform(springY, [-0.5, 0.5], ["38%", "52%"]);
 
-    setFilteredLaunches(
-      updated
+  const providers = useMemo(() => {
+    const names = launches.map(
+      (launch) => launch.launch_service_provider?.name
+    );
+    return ["All", ...new Set(names.filter(Boolean))];
+  }, [launches]);
+
+  const nextLaunch = useMemo(() => {
+    const now = Date.now();
+    const upcoming = [...launches]
+      .filter((l) => l.net && new Date(l.net).getTime() > now)
+      .sort((a, b) => new Date(a.net) - new Date(b.net));
+    return upcoming[0] || launches[0] || null;
+  }, [launches]);
+
+  const spotlightCountdown = useSpotlightCountdown(nextLaunch?.net);
+
+  const heroImage =
+    nextLaunch?.image || launches.find((l) => l.image)?.image || FALLBACK_HERO;
+
+  useEffect(() => {
+    let updated = [...launches];
+
+    updated = updated.filter((launch) =>
+      launch.name?.toLowerCase().includes(search.toLowerCase())
     );
 
-  }, [
+    if (statusFilter !== "All") {
+      updated = updated.filter(
+        (launch) => launch.status?.name === statusFilter
+      );
+    }
 
-    launches,
-    search,
-    statusFilter,
-    providerFilter,
-  ]);
+    if (providerFilter !== "All") {
+      updated = updated.filter(
+        (launch) =>
+          launch.launch_service_provider?.name === providerFilter
+      );
+    }
 
-  /* =========================
-     LOAD MORE
-  ========================= */
+    setFilteredLaunches(updated);
+  }, [launches, search, statusFilter, providerFilter]);
 
   function loadMore() {
+    setVisibleCount((prev) => prev + 6);
+  }
 
-    setVisibleCount(
+  function handleHeroMouse(e) {
+    if (prefersReducedMotion) return;
+    const rect = e.currentTarget.getBoundingClientRect();
+    mouseX.set((e.clientX - rect.left) / rect.width - 0.5);
+    mouseY.set((e.clientY - rect.top) / rect.height - 0.5);
+  }
 
-      (prev) => prev + 6
-    );
+  function scrollToLaunches() {
+    launchesRef.current?.scrollIntoView({ behavior: "smooth" });
   }
 
   return (
-
     <div className="home-page">
-
-      {/* HERO */}
-
-      <section className="hero">
-
-        <h1>
-          Rocket Launch Tracker 🚀
-        </h1>
-
-        <p>
-          Track upcoming space
-          launches worldwide
-          in real-time.
-        </p>
-
-      </section>
-
-      {/* FILTER BAR */}
-
-      <div className="filter-bar">
-
-        {/* SEARCH */}
-
-        <input
-
-          type="text"
-
-          placeholder="Search launches..."
-
-          value={search}
-
-          onChange={(e) =>
-
-            setSearch(
-              e.target.value
-            )
-          }
-
+      <section
+        id="hero"
+        className="ls-hero"
+        onMouseMove={handleHeroMouse}
+        aria-labelledby="hero-heading"
+      >
+        <div
+          className="ls-hero__bg"
+          style={{ backgroundImage: `url(${heroImage})` }}
+          aria-hidden="true"
+        />
+        <div className="ls-hero__bg-overlay" aria-hidden="true" />
+        <div className="ls-hero__grid-lines" aria-hidden="true" />
+        <motion.div
+          className="ls-hero__glow"
+          style={{
+            left: prefersReducedMotion ? "50%" : glowX,
+            top: prefersReducedMotion ? "40%" : glowY,
+          }}
+          aria-hidden="true"
         />
 
-        {/* STATUS */}
+        <div className="ls-hero__inner">
+          <motion.div
+            className="ls-hero__copy"
+            style={
+              prefersReducedMotion
+                ? undefined
+                : { x: parallaxX, y: parallaxY }
+            }
+            initial={prefersReducedMotion ? false : { opacity: 0, y: 32 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
+          >
+            <p className="ls-hero__brand-mobile" aria-hidden="true">
+              LAUNCH SCOPE
+            </p>
 
-        <select
+            <p className="ls-hero__eyebrow">
+              <span className="ls-hero__eyebrow-icon" aria-hidden="true" />
+              Mission Control
+            </p>
 
-          value={statusFilter}
+            <h1 id="hero-heading" className="ls-hero__title">
+              Track Humanity&apos;s{" "}
+              <span className="ls-hero__title-accent">Next Launch.</span>
+            </h1>
 
-          onChange={(e) =>
+            <p className="ls-hero__subtitle">
+              Real-time data. Live countdowns. Global coverage.
+            </p>
 
-            setStatusFilter(
-              e.target.value
-            )
-          }
+            <div className="ls-hero__cta">
+              <button
+                type="button"
+                className="ls-btn ls-btn--primary ls-btn--lg"
+                onClick={scrollToLaunches}
+              >
+                Explore Launches
+                <span aria-hidden="true">→</span>
+              </button>
+            </div>
+          </motion.div>
 
-        >
-
-          <option>
-            All
-          </option>
-
-          <option>
-            Go
-          </option>
-
-          <option>
-            TBD
-          </option>
-
-          <option>
-            Success
-          </option>
-
-          <option>
-            Failure
-          </option>
-
-        </select>
-
-        {/* PROVIDERS */}
-
-        <select
-
-          value={providerFilter}
-
-          onChange={(e) =>
-
-            setProviderFilter(
-              e.target.value
-            )
-          }
-
-        >
-
-          {
-
-            providers.map(
-              (provider) => (
-
-                <option
-                  key={provider}
-                >
-
-                  {provider}
-
-                </option>
-              )
-            )
-          }
-
-        </select>
-
-      </div>
-
-      {/* RESULTS COUNT */}
-
-      <div className="results-count">
-
-        Showing
-
-        {
-
-          Math.min(
-            visibleCount,
-            filteredLaunches.length
-          )
-        }
-
-        {" "}of{" "}
-
-        {
-          filteredLaunches.length
-        }
-
-        launches 🚀
-
-      </div>
-
-      {/* EMPTY */}
-
-      {
-
-        filteredLaunches.length === 0
-
-        && (
-
-          <div className="loading">
-
-            No launches found 🚀
-
-          </div>
-        )
-      }
-
-      {/* GRID */}
-
-      <div className="launch-grid">
-
-        {
-
-          filteredLaunches
-
-            .slice(0, visibleCount)
-
-            .map(
-              (launch) => (
-
-                <LaunchCard
-
-                  key={launch.id}
-
-                  launch={launch}
-
-                  toggleFavourite={
-                    toggleFavourite
-                  }
-
-                  isFavourite={
-
-                    favourites.includes(
-                      launch.id
-                    )
-                  }
-
-                />
-              )
-            )
-        }
-
-      </div>
-
-      {/* LOAD MORE */}
-
-      {
-
-        visibleCount <
-
-        filteredLaunches.length
-
-        && (
-
-          <div className="load-more-wrapper">
-
-            <button
-
-              className="load-more-btn"
-
-              onClick={loadMore}
+          {nextLaunch && (
+            <motion.aside
+              className="ls-spotlight"
+              initial={prefersReducedMotion ? false : { opacity: 0, x: 24 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.7, delay: 0.2 }}
             >
+              <p className="ls-spotlight__label">Next Launch</p>
+              <h2 className="ls-spotlight__name">{nextLaunch.name}</h2>
 
-              Load More 🚀
+              <div className="ls-spotlight__countdown" aria-live="polite">
+                {[
+                  ["Days", spotlightCountdown.days],
+                  ["Hrs", spotlightCountdown.hours],
+                  ["Min", spotlightCountdown.minutes],
+                  ["Sec", spotlightCountdown.seconds],
+                ].map(([label, val], i) => (
+                  <div key={label} className="ls-spotlight__countdown-cell">
+                    {i > 0 && (
+                      <span className="ls-spotlight__sep" aria-hidden="true">
+                        :
+                      </span>
+                    )}
+                    <span className="ls-spotlight__val">{val}</span>
+                    <span className="ls-spotlight__unit">{label}</span>
+                  </div>
+                ))}
+              </div>
 
-            </button>
+              <div className="ls-spotlight__meta">
+                <span>
+                  {nextLaunch.rocket?.configuration?.full_name ||
+                    "Vehicle TBD"}
+                </span>
+                <span>
+                  {nextLaunch.pad?.name ||
+                    nextLaunch.pad?.location?.name ||
+                    "Site TBD"}
+                </span>
+              </div>
 
+              <Link
+                to={`/launch/${nextLaunch.id}`}
+                className="ls-spotlight__link"
+              >
+                View mission →
+              </Link>
+            </motion.aside>
+          )}
+        </div>
+
+        <motion.button
+          type="button"
+          className="ls-hero__scroll"
+          onClick={scrollToLaunches}
+          initial={prefersReducedMotion ? false : { opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 1 }}
+          aria-label="Scroll to explore launches"
+        >
+          <span className="ls-hero__scroll-mouse" aria-hidden="true" />
+          <span>Scroll to explore</span>
+        </motion.button>
+      </section>
+
+      <div className="home-page__content">
+        <motion.div
+          className="ls-filters"
+          initial={prefersReducedMotion ? false : { opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.5 }}
+        >
+          <label className="ls-filters__search">
+            <span className="visually-hidden">Search launches</span>
+            <svg
+              className="ls-filters__icon"
+              width="18"
+              height="18"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              aria-hidden="true"
+            >
+              <circle cx="11" cy="11" r="7" />
+              <path d="M20 20l-3-3" />
+            </svg>
+            <input
+              type="search"
+              placeholder="Search launches..."
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+            />
+          </label>
+
+          <CustomSelect
+            label="Filter by agency"
+            value={providerFilter}
+            onChange={setProviderFilter}
+            options={providers.map((provider) => ({
+              value: provider,
+              label: provider === "All" ? "All Agencies" : provider,
+            }))}
+            className="ls-filters__select"
+          />
+
+          <CustomSelect
+            label="Filter by status"
+            value={statusFilter}
+            onChange={setStatusFilter}
+            options={STATUS_OPTIONS}
+            className="ls-filters__select"
+          />
+
+          <button
+            type="button"
+            className="ls-filters__action"
+            onClick={scrollToLaunches}
+          >
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
+              <path d="M4 6h16M4 12h10M4 18h6" />
+            </svg>
+            Filters
+          </button>
+        </motion.div>
+
+        <section
+          id="launches"
+          ref={launchesRef}
+          className="ls-launches"
+          aria-labelledby="launches-heading"
+        >
+          <div className="ls-launches__header">
+            <div>
+              <h2 id="launches-heading" className="ls-launches__title">
+                Upcoming Launches
+              </h2>
+              <p className="ls-launches__sub">
+                Showing{" "}
+                {Math.min(visibleCount, filteredLaunches.length)} of{" "}
+                {filteredLaunches.length} missions
+              </p>
+            </div>
+            <span className="ls-launches__live">
+              <span className="ls-launches__live-dot" aria-hidden="true" />
+              Live
+            </span>
           </div>
-        )
-      }
 
+          {filteredLaunches.length === 0 && (
+            <div className="ls-empty" role="status">
+              <p className="ls-empty__title">No missions match your filters</p>
+              <p className="ls-empty__text">
+                Adjust search or status to discover more launches.
+              </p>
+            </div>
+          )}
+
+          <div className="launch-grid ls-launch-grid">
+            {filteredLaunches.slice(0, visibleCount).map((launch, index) => (
+              <LaunchCard
+                key={launch.id}
+                launch={launch}
+                toggleFavourite={toggleFavourite}
+                isFavourite={favourites.includes(launch.id)}
+                index={index}
+              />
+            ))}
+          </div>
+
+          {visibleCount < filteredLaunches.length && (
+            <div className="load-more-wrapper">
+              <button
+                type="button"
+                className="ls-btn ls-btn--primary load-more-btn"
+                onClick={loadMore}
+              >
+                Load more missions
+              </button>
+            </div>
+          )}
+        </section>
+      </div>
     </div>
   );
 }
