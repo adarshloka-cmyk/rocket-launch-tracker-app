@@ -142,7 +142,33 @@ app.get(
           req.user.id
         ).select("-password");
 
-      res.json(user);
+      const response =
+        await fetch(
+          "https://ll.thespacedevs.com/2.2.0/launch/upcoming/?limit=50"
+        );
+
+      const data =
+        await response.json();
+
+      const currentLaunchIds =
+        data.results.map(
+          (launch) => launch.id
+        );
+
+      const activeFavourites =
+        user.favourites.filter(
+          (id) =>
+            currentLaunchIds.includes(id)
+        );
+
+      res.json({
+
+        ...user.toObject(),
+
+        activeFavouritesCount:
+          activeFavourites.length,
+
+      });
 
     } catch (error) {
 
@@ -158,7 +184,6 @@ app.get(
 
   }
 );
-
 /* =========================
    TOGGLE FAVOURITE
 ========================= */

@@ -142,10 +142,9 @@ export default function Profile() {
 
             <span>
 
-              {
-                user.favourites
-                  ?.length || 0
-              }
+{
+  user.activeFavouritesCount || 0
+}
 
             </span>
 
