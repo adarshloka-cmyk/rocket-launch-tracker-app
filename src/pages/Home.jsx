@@ -9,6 +9,7 @@ import {
 import { Link } from "react-router-dom";
 import LaunchCard from "../components/LaunchCard";
 import CustomSelect from "../components/CustomSelect";
+import { matchesStatusFilter } from "../utils/launchStatus";
 
 const STATUS_OPTIONS = [
   { value: "All", label: "All Statuses" },
@@ -84,7 +85,8 @@ export default function Home({
   const [statusFilter, setStatusFilter] = useState("All");
   const [providerFilter, setProviderFilter] = useState("All");
   const [visibleCount, setVisibleCount] = useState(9);
-  const [filteredLaunches, setFilteredLaunches] = useState([]);
+  const [heroVideoReady, setHeroVideoReady] = useState(false);
+  const [heroVideoFailed, setHeroVideoFailed] = useState(false);
 
   const mouseX = useMotionValue(0);
   const mouseY = useMotionValue(0);
@@ -102,6 +104,52 @@ export default function Home({
     return ["All", ...new Set(names.filter(Boolean))];
   }, [launches]);
 
+  const agencyOptions = useMemo(() => {
+    const thumbByProvider = {};
+    launches.forEach((launch) => {
+      const name = launch.launch_service_provider?.name;
+      if (name && !thumbByProvider[name] && launch.image) {
+        thumbByProvider[name] = launch.image;
+      }
+    });
+
+    return providers.map((provider) => ({
+      value: provider,
+      label: provider === "All" ? "All Agencies" : provider,
+      thumbnail:
+        provider === "All" ? null : thumbByProvider[provider] || null,
+      icon:
+        provider === "All" ? (
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" aria-hidden="true">
+            <rect x="3" y="3" width="7" height="7" rx="1" />
+            <rect x="14" y="3" width="7" height="7" rx="1" />
+            <rect x="3" y="14" width="7" height="7" rx="1" />
+            <rect x="14" y="14" width="7" height="7" rx="1" />
+          </svg>
+        ) : null,
+    }));
+  }, [providers, launches]);
+
+  const filteredLaunches = useMemo(() => {
+    const term = search.trim().toLowerCase();
+
+    return launches.filter((launch) => {
+      if (term && !launch.name?.toLowerCase().includes(term)) {
+        return false;
+      }
+      if (!matchesStatusFilter(launch, statusFilter)) {
+        return false;
+      }
+      if (
+        providerFilter !== "All" &&
+        launch.launch_service_provider?.name !== providerFilter
+      ) {
+        return false;
+      }
+      return true;
+    });
+  }, [launches, search, statusFilter, providerFilter]);
+
   const nextLaunch = useMemo(() => {
     const now = Date.now();
     const upcoming = [...launches]
@@ -116,27 +164,8 @@ export default function Home({
     nextLaunch?.image || launches.find((l) => l.image)?.image || FALLBACK_HERO;
 
   useEffect(() => {
-    let updated = [...launches];
-
-    updated = updated.filter((launch) =>
-      launch.name?.toLowerCase().includes(search.toLowerCase())
-    );
-
-    if (statusFilter !== "All") {
-      updated = updated.filter(
-        (launch) => launch.status?.name === statusFilter
-      );
-    }
-
-    if (providerFilter !== "All") {
-      updated = updated.filter(
-        (launch) =>
-          launch.launch_service_provider?.name === providerFilter
-      );
-    }
-
-    setFilteredLaunches(updated);
-  }, [launches, search, statusFilter, providerFilter]);
+    setVisibleCount(9);
+  }, [search, statusFilter, providerFilter]);
 
   function loadMore() {
     setVisibleCount((prev) => prev + 6);
@@ -161,8 +190,29 @@ export default function Home({
         onMouseMove={handleHeroMouse}
         aria-labelledby="hero-heading"
       >
+        {!heroVideoFailed && (
+          <video
+            className={`ls-hero__video ${
+              heroVideoReady ? "is-ready" : ""
+            }`}
+            autoPlay
+            muted
+            loop
+            playsInline
+            preload="metadata"
+            poster={heroImage}
+            aria-hidden="true"
+            onLoadedData={() => setHeroVideoReady(true)}
+            onCanPlay={() => setHeroVideoReady(true)}
+            onError={() => setHeroVideoFailed(true)}
+          >
+            <source src="/videos/launch.mp4" type="video/mp4" />
+          </video>
+        )}
         <div
-          className="ls-hero__bg"
+          className={`ls-hero__bg ${
+            heroVideoReady && !heroVideoFailed ? "is-fallback" : ""
+          }`}
           style={{ backgroundImage: `url(${heroImage})` }}
           aria-hidden="true"
         />
@@ -319,11 +369,10 @@ export default function Home({
             label="Filter by agency"
             value={providerFilter}
             onChange={setProviderFilter}
-            options={providers.map((provider) => ({
-              value: provider,
-              label: provider === "All" ? "All Agencies" : provider,
-            }))}
-            className="ls-filters__select"
+            options={agencyOptions}
+            searchable
+            searchPlaceholder="Search agencies…"
+            className="ls-filters__select ls-filters__select--agency"
           />
 
           <CustomSelect

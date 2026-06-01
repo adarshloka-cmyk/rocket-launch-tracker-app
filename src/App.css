@@ -1,4 +1,4 @@
-﻿/* ==========================================================================
+/* ==========================================================================
    LAUNCH SCOPE — Application Styles
    Dark aerospace theme · SpaceX / Linear glass aesthetic
    ========================================================================== */
@@ -918,6 +918,24 @@
   margin-bottom: 0;
 }
 
+.ls-hero__video {
+  position: absolute;
+  inset: -2%;
+  width: 104%;
+  height: 104%;
+  object-fit: cover;
+  object-position: 62% 38%;
+  opacity: 0;
+  filter: brightness(0.88) saturate(1.12) contrast(1.06);
+  transition: opacity 1.1s var(--ls-ease-out);
+  will-change: opacity;
+  pointer-events: none;
+}
+
+.ls-hero__video.is-ready {
+  opacity: 1;
+}
+
 .ls-hero__bg {
   position: absolute;
   inset: -2%;
@@ -927,6 +945,12 @@
   transform: scale(1.04);
   animation: ls-hero-zoom 22s ease-out forwards;
   filter: brightness(0.92) saturate(1.15) contrast(1.08);
+  transition: opacity 0.8s var(--ls-ease-out);
+}
+
+.ls-hero__bg.is-fallback {
+  opacity: 0;
+  pointer-events: none;
 }
 
 .ls-hero__bg-overlay {
@@ -1241,6 +1265,7 @@
 .home-page__content {
   padding-top: 3rem;
   padding-bottom: 2rem;
+  overflow: visible;
 }
 
 /* --------------------------------------------------------------------------
@@ -1248,6 +1273,8 @@
    -------------------------------------------------------------------------- */
 
 .ls-filters {
+  position: relative;
+  z-index: 100;
   display: flex;
   flex-wrap: wrap;
   align-items: center;
@@ -1258,6 +1285,7 @@
   background: var(--ls-glass);
   border: 1px solid var(--ls-glass-border);
   backdrop-filter: blur(16px);
+  overflow: visible;
 }
 
 .ls-filters__search {
@@ -1305,6 +1333,7 @@
   position: relative;
   flex: 1 1 180px;
   min-width: 160px;
+  overflow: visible;
 }
 
 .ls-filters__select {
@@ -1363,39 +1392,140 @@
   color: var(--ls-accent-bright);
 }
 
-.ls-select__menu {
-  position: absolute;
-  z-index: 200;
-  top: calc(100% + 6px);
-  left: 0;
-  right: 0;
-  margin: 0;
-  padding: 0.35rem;
-  list-style: none;
-  border-radius: 12px;
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  background: rgba(8, 14, 28, 0.95);
-  backdrop-filter: blur(20px) saturate(1.3);
+.ls-select__menu-portal {
+  display: flex;
+  flex-direction: column;
+  border-radius: 14px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  background: rgba(6, 12, 24, 0.72);
+  backdrop-filter: blur(28px) saturate(1.45);
+  -webkit-backdrop-filter: blur(28px) saturate(1.45);
   box-shadow:
-    0 16px 48px rgba(0, 0, 0, 0.5),
-    0 0 0 1px rgba(255, 255, 255, 0.04) inset;
-  max-height: 280px;
+    0 24px 64px rgba(0, 0, 0, 0.55),
+    0 0 0 1px rgba(255, 255, 255, 0.06) inset,
+    0 0 48px rgba(59, 130, 246, 0.08);
+  overflow: hidden;
+  transform-origin: top center;
+}
+
+.ls-select__menu-portal.is-above {
+  transform-origin: bottom center;
+}
+
+.ls-select__search {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.55rem 0.65rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  color: var(--ls-text-dim);
+  flex-shrink: 0;
+}
+
+.ls-select__search input {
+  flex: 1;
+  min-width: 0;
+  padding: 0.45rem 0.35rem;
+  border: none;
+  background: transparent;
+  color: var(--ls-text);
+  font-size: 0.8125rem;
+  font-family: inherit;
+}
+
+.ls-select__search input::placeholder {
+  color: var(--ls-text-dim);
+}
+
+.ls-select__search input:focus {
+  outline: none;
+}
+
+.ls-select__menu {
+  margin: 0;
+  padding: 0.4rem;
+  list-style: none;
   overflow-y: auto;
+  overscroll-behavior: contain;
+  flex: 1;
+  min-height: 0;
+}
+
+.ls-select__empty {
+  padding: 0.85rem 0.75rem;
+  font-size: 0.8125rem;
+  color: var(--ls-text-dim);
+  text-align: center;
 }
 
 .ls-select__option {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 0.5rem;
-  padding: 0.6rem 0.75rem;
-  border-radius: 8px;
+  gap: 0.65rem;
+  padding: 0.55rem 0.65rem;
+  border-radius: 10px;
   font-size: 0.875rem;
   color: var(--ls-text-muted);
   cursor: pointer;
   transition:
     background var(--ls-duration-fast) var(--ls-ease-out),
-    color var(--ls-duration-fast) var(--ls-ease-out);
+    color var(--ls-duration-fast) var(--ls-ease-out),
+    transform var(--ls-duration-fast) var(--ls-ease-out);
+}
+
+.ls-select__option-main {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  min-width: 0;
+  flex: 1;
+}
+
+.ls-select__thumb-wrap {
+  flex-shrink: 0;
+  width: 40px;
+  height: 40px;
+  border-radius: 8px;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.ls-select__thumb-wrap--icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--ls-accent-bright);
+}
+
+.ls-select__thumb {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.ls-select__option-text {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  min-width: 0;
+}
+
+.ls-select__option-label {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-weight: 500;
+  color: var(--ls-text);
+}
+
+.ls-select__option-sub {
+  font-size: 0.75rem;
+  color: var(--ls-text-dim);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .ls-select__option:hover,
@@ -1438,6 +1568,8 @@
    -------------------------------------------------------------------------- */
 
 .ls-launches {
+  position: relative;
+  z-index: 1;
   width: 100%;
 }
 
