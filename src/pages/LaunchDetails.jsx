@@ -8,8 +8,8 @@ import {
   trackCalendarEvent,
 } from "../utils/calendarHelpers";
 
-const FALLBACK_IMAGE =
-  "https://images.unsplash.com/photo-1446776811953-b23d57bd21aa?auto=format&fit=crop&w=1600&q=80";
+import { getOptimizedImageUrl, FALLBACK_HERO_IMAGE } from "../utils/imageOptimizer";
+const FALLBACK_IMAGE = FALLBACK_HERO_IMAGE;
 
 function getStatusClass(status) {
   const name = status?.toLowerCase() || "";
@@ -146,7 +146,7 @@ export default function LaunchDetails() {
         <div
           className="ls-mission-hero__bg"
           style={{
-            backgroundImage: `url(${launch.image || FALLBACK_IMAGE})`,
+            backgroundImage: `url(${getOptimizedImageUrl(launch.image, 1200)})`,
           }}
           aria-hidden="true"
         />

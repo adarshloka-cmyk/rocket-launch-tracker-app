@@ -1,9 +1,8 @@
 import { Link } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { motion, useReducedMotion } from "framer-motion";
-
-const FALLBACK_IMAGE =
-  "https://images.unsplash.com/photo-1446776811953-b23d57bd21aa?auto=format&fit=crop&w=1200&q=80";
+import OptimizedImage from "./OptimizedImage";
+import { FALLBACK_CARD_IMAGE } from "../utils/imageOptimizer";
 
 function getStatusClass(status) {
   const name = status?.toLowerCase() || "";
@@ -97,11 +96,12 @@ export default function LaunchCard({
       whileHover={prefersReducedMotion ? undefined : { y: -8 }}
     >
       <div className="ls-card__media">
-        <img
-          src={launch.image || FALLBACK_IMAGE}
-          alt=""
+        <OptimizedImage
+          src={launch.image}
+          fallbackSrc={FALLBACK_CARD_IMAGE}
+          alt={launch.name || ""}
           className="ls-card__img"
-          loading="lazy"
+          width={500}
         />
         <div className="ls-card__media-overlay" aria-hidden="true" />
 

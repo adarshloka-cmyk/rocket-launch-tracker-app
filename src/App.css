@@ -918,6 +918,14 @@
   margin-bottom: 0;
 }
 
+.ls-hero__video-container {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  overflow: hidden;
+  z-index: 0;
+}
+
 .ls-hero__video {
   position: absolute;
   inset: -2%;
@@ -3112,4 +3120,47 @@
     min-height: 48px;
   }
 }
+
+/* --------------------------------------------------------------------------
+   Image Optimization Support Styles
+   -------------------------------------------------------------------------- */
+
+@keyframes ls-shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+.ls-image-wrapper {
+  background: rgba(15, 23, 42, 0.4);
+  position: relative;
+  overflow: hidden;
+}
+
+.ls-image-skeleton {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0.03) 25%,
+    rgba(255, 255, 255, 0.08) 50%,
+    rgba(255, 255, 255, 0.03) 75%
+  );
+  background-size: 200% 100%;
+  animation: ls-shimmer 1.6s infinite linear;
+  z-index: 1;
+}
+
+.ls-optimized-img {
+  opacity: 0;
+  transition: opacity 0.4s cubic-bezier(0.16, 1, 0.3, 1) !important;
+}
+
+.ls-optimized-img.is-ready {
+  opacity: 1;
+}
+
 

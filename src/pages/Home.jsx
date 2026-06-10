@@ -19,8 +19,8 @@ const STATUS_OPTIONS = [
   { value: "Failure", label: "Failure" },
 ];
 
-const FALLBACK_HERO =
-  "https://images.unsplash.com/photo-1451187580459-43490279c0fa?auto=format&fit=crop&w=2400&q=80";
+import { getOptimizedImageUrl, FALLBACK_HERO_IMAGE } from "../utils/imageOptimizer";
+const FALLBACK_HERO = FALLBACK_HERO_IMAGE;
 
 function useSpotlightCountdown(net) {
   const [parts, setParts] = useState({
@@ -81,6 +81,19 @@ export default function Home({
   const prefersReducedMotion = useReducedMotion();
   const launchesRef = useRef(null);
 
+  const nextLaunch = useMemo(() => {
+    const now = Date.now();
+    const upcoming = [...launches]
+      .filter((l) => l.net && new Date(l.net).getTime() > now)
+      .sort((a, b) => new Date(a.net) - new Date(b.net));
+    return upcoming[0] || launches[0] || null;
+  }, [launches]);
+
+  const spotlightCountdown = useSpotlightCountdown(nextLaunch?.net);
+
+  const heroImage =
+    nextLaunch?.image || launches.find((l) => l.image)?.image || FALLBACK_HERO;
+
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("All");
   const [providerFilter, setProviderFilter] = useState("All");
@@ -96,6 +109,64 @@ export default function Home({
   const parallaxY = useTransform(springY, [-0.5, 0.5], [-12, 12]);
   const glowX = useTransform(springX, [-0.5, 0.5], ["42%", "58%"]);
   const glowY = useTransform(springY, [-0.5, 0.5], ["38%", "52%"]);
+
+  useEffect(() => {
+    const video = document.getElementById("ls-global-hero-video");
+    const container = document.getElementById("hero-video-container");
+
+    if (!video || !container) return;
+
+    // Set poster attribute
+    if (heroImage) {
+      video.setAttribute("poster", heroImage);
+    }
+
+    // Reparent video to the Home hero container
+    container.appendChild(video);
+
+    // Update ready state immediately if already loaded
+    if (video.readyState >= 3) {
+      setHeroVideoReady(true);
+    }
+
+    // Attempt to play
+    video.play().catch((err) => {
+      console.log("Auto-play prevented or failed:", err);
+    });
+
+    const handleReady = () => setHeroVideoReady(true);
+    const handleError = () => setHeroVideoFailed(true);
+
+    video.addEventListener("canplay", handleReady);
+    video.addEventListener("loadeddata", handleReady);
+    video.addEventListener("error", handleError);
+
+    return () => {
+      video.removeEventListener("canplay", handleReady);
+      video.removeEventListener("loadeddata", handleReady);
+      video.removeEventListener("error", handleError);
+
+      // Pause the video when leaving Home
+      video.pause();
+
+      // Put it back to the global portal
+      const portal = document.getElementById("ls-global-video-portal");
+      if (portal) {
+        portal.appendChild(video);
+      }
+    };
+  }, [heroImage]);
+
+  useEffect(() => {
+    const video = document.getElementById("ls-global-hero-video");
+    if (video) {
+      if (heroVideoReady) {
+        video.classList.add("is-ready");
+      } else {
+        video.classList.remove("is-ready");
+      }
+    }
+  }, [heroVideoReady]);
 
   const providers = useMemo(() => {
     const names = launches.map(
@@ -117,7 +188,7 @@ export default function Home({
       value: provider,
       label: provider === "All" ? "All Agencies" : provider,
       thumbnail:
-        provider === "All" ? null : thumbByProvider[provider] || null,
+        provider === "All" ? null : getOptimizedImageUrl(thumbByProvider[provider], 100) || null,
       icon:
         provider === "All" ? (
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" aria-hidden="true">
@@ -150,18 +221,7 @@ export default function Home({
     });
   }, [launches, search, statusFilter, providerFilter]);
 
-  const nextLaunch = useMemo(() => {
-    const now = Date.now();
-    const upcoming = [...launches]
-      .filter((l) => l.net && new Date(l.net).getTime() > now)
-      .sort((a, b) => new Date(a.net) - new Date(b.net));
-    return upcoming[0] || launches[0] || null;
-  }, [launches]);
 
-  const spotlightCountdown = useSpotlightCountdown(nextLaunch?.net);
-
-  const heroImage =
-    nextLaunch?.image || launches.find((l) => l.image)?.image || FALLBACK_HERO;
 
   useEffect(() => {
     setVisibleCount(9);
@@ -191,29 +251,17 @@ export default function Home({
         aria-labelledby="hero-heading"
       >
         {!heroVideoFailed && (
-          <video
-            className={`ls-hero__video ${
-              heroVideoReady ? "is-ready" : ""
-            }`}
-            autoPlay
-            muted
-            loop
-            playsInline
-            preload="metadata"
-            poster={heroImage}
+          <div
+            id="hero-video-container"
+            className="ls-hero__video-container"
             aria-hidden="true"
-            onLoadedData={() => setHeroVideoReady(true)}
-            onCanPlay={() => setHeroVideoReady(true)}
-            onError={() => setHeroVideoFailed(true)}
-          >
-            <source src="/videos/launch.mp4" type="video/mp4" />
-          </video>
+          />
         )}
         <div
           className={`ls-hero__bg ${
             heroVideoReady && !heroVideoFailed ? "is-fallback" : ""
           }`}
-          style={{ backgroundImage: `url(${heroImage})` }}
+          style={{ backgroundImage: `url(${getOptimizedImageUrl(heroImage, 1200)})` }}
           aria-hidden="true"
         />
         <div className="ls-hero__bg-overlay" aria-hidden="true" />

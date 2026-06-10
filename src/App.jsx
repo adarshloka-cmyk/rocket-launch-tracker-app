@@ -231,8 +231,31 @@ function AppContent() {
     exit: { opacity: 0, y: prefersReducedMotion ? 0 : -8 },
   };
 
+  const [hasVisitedHome, setHasVisitedHome] = useState(false);
+
+  useEffect(() => {
+    if (location.pathname === "/") {
+      setHasVisitedHome(true);
+    }
+  }, [location.pathname]);
+
   return (
     <div className="app-shell">
+      {hasVisitedHome && (
+        <div id="ls-global-video-portal" style={{ display: "none" }} aria-hidden="true">
+          <video
+            id="ls-global-hero-video"
+            muted
+            loop
+            playsInline
+            preload="metadata"
+            className="ls-hero__video"
+          >
+            <source src="/videos/launch.webm" type="video/webm" />
+            <source src="/videos/launch.mp4" type="video/mp4" />
+          </video>
+        </div>
+      )}
       {!isAuthPage && (
         <Navbar user={user} onLogout={handleLogout} />
       )}
