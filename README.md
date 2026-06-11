@@ -1,45 +1,30 @@
-# Rocket Launch Tracker
+# LaunchScope
 
-## Project Overview
+LaunchScope is a full-stack web application for exploring and tracking upcoming rocket launches using live launch data from the SpaceDevs Launch Library API.
 
-Rocket Launch Tracker is a full-stack MERN web application developed to track and explore rocket launch information using real-time data from the SpaceDevs API.
-
-The project allows users to create accounts, log in securely, view upcoming launches, save favourite launches, and access their profile information. User data and favourites are stored in MongoDB Atlas, while authentication is implemented using JWT.
-
----
+The platform allows users to browse launch schedules, view detailed mission information, maintain a personal watchlist, and add launches directly to their calendars. The application focuses on performance, usability, and a responsive user experience across desktop and mobile devices.
 
 ## Features
 
-### User Authentication
+* Browse upcoming rocket launches
+* View detailed mission, vehicle, launch site, and provider information
+* User authentication and account management
+* Personal watchlist for saving favourite launches
+* Live countdowns for upcoming missions
+* Google Calendar integration
+* Outlook Calendar integration
+* ICS calendar export support
+* Responsive design for desktop, tablet, and mobile devices
+* Optimized image and video delivery for improved performance
 
-* User registration
-* User login
-* JWT-based authentication
-* Protected routes
-* Logout functionality
-
-### Launch Tracking
-
-* View rocket launch information
-* View detailed mission information
-* Real-time launch data using SpaceDevs API
-
-### User Features
-
-* Save favourite launches
-* View all saved favourites
-* Profile page
-* Persistent login sessions
-
----
-
-## Technologies Used
+## Technology Stack
 
 ### Frontend
 
-* React.js
-* React Router DOM
-* Axios
+* React
+* React Router
+* Vite
+* Framer Motion
 * CSS
 
 ### Backend
@@ -50,101 +35,99 @@ The project allows users to create accounts, log in securely, view upcoming laun
 ### Database
 
 * MongoDB Atlas
-* Mongoose
 
 ### Authentication
 
 * JSON Web Tokens (JWT)
-* bcryptjs
 
-### Version Control
+### External APIs
 
-* Git
-* GitHub
+* SpaceDevs Launch Library API
 
----
+## Performance Optimizations
+
+Several optimizations were implemented to improve loading speed and reduce bandwidth usage:
+
+* Hero video compression and delivery optimization
+* Image optimization and responsive image loading
+* Lazy loading of media assets
+* Reduced homepage payload size
+* Improved navigation performance across routes
 
 ## Project Structure
 
 ```text
-rocket-launch-tracker-app
-
-├── backend
-│   ├── config
-│   ├── controllers
-│   ├── middleware
-│   ├── models
-│   ├── routes
-│   └── server.js
-
-├── src
-│   ├── api
-│   ├── components
-│   ├── context
-│   ├── pages
-│   └── App.jsx
-
+launchscope/
+├── src/
+│   ├── components/
+│   ├── pages/
+│   ├── utils/
+│   └── assets/
+├── backend/
+│   ├── config/
+│   ├── models/
+│   ├── routes/
+│   ├── middleware/
+│   └── controllers/
+├── public/
 └── README.md
 ```
 
----
-
-## Installation and Setup
+## Installation
 
 ### Clone the repository
 
 ```bash
-git clone https://github.com/adarshloka-cmyk/rocket-launch-tracker-app.git
+git clone https://github.com/your-username/rocket-launch-tracker-app.git
+cd rocket-launch-tracker-app
 ```
 
-### Frontend Setup
+### Install frontend dependencies
 
 ```bash
 npm install
-npm run dev
 ```
 
-### Backend Setup
+### Install backend dependencies
 
 ```bash
 cd backend
 npm install
-npm run dev
 ```
 
----
+### Environment Variables
 
-## Database Configuration
-
-Create a `.env` file inside the backend folder and add:
+Create a `.env` file inside the backend directory and configure the following values:
 
 ```env
 MONGO_URI=your_mongodb_connection_string
-JWT_SECRET=your_secret_key
+JWT_SECRET=your_jwt_secret
+PORT=5000
 ```
 
----
+### Run the backend
 
-## API Used
+```bash
+cd backend
+npm run dev
+```
 
-This project uses the SpaceDevs Launch Library API to fetch rocket launch and mission information.
+### Run the frontend
 
----
+```bash
+npm run dev
+```
 
 ## Future Improvements
 
-* Search launches
-* Filter launches by mission type
-* User profile editing
-* Email verification
-* Password reset functionality
-* Better dashboard analytics
-* Application deployment
+Potential enhancements include:
 
----
+* Launch notifications
+* Advanced launch filtering
+* Search improvements
+* User activity history
+* Additional mission analytics
 
-## Author
+## Notes
 
-Adarsh 
-
-Developed as a MERN stack learning project to understand full-stack web development, authentication, API integration, and database management.
+This project was developed as a learning-focused full-stack application and evolved through multiple iterations covering authentication, API integration, performance optimization, responsive design, and deployment workflows.
