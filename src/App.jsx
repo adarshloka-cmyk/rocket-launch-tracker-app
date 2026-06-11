@@ -71,7 +71,7 @@ function AppFooter() {
       <div className="ls-footer__inner">
         <div className="ls-footer__top">
           <div className="ls-footer__brand">
-            <p className="ls-footer__brand-name">LAUNCH SCOPE</p>
+            <p className="ls-footer__brand-name">LAUNCHSCOPE</p>
             <p className="ls-footer__brand-tagline">
               Track Humanity&apos;s Next Launch.
             </p>
@@ -136,7 +136,7 @@ function AppFooter() {
         </div>
 
         <div className="ls-footer__bottom">
-          <span>© {new Date().getFullYear()} LAUNCH SCOPE</span>
+          <span>© {new Date().getFullYear()} LAUNCHSCOPE</span>
           <span className="ls-footer__credit">Built by A</span>
         </div>
       </div>
@@ -269,7 +269,7 @@ function AppContent() {
       {loading && !isAuthPage && (
         <main className="app-main app-main--loading loading-shell" aria-busy="true">
           <div className="loading-shell__header">
-            <p className="loading-shell__label">Mission Control</p>
+            <p className="loading-shell__label">Launch Intelligence</p>
             <h2 className="loading-shell__title">Syncing launch manifest</h2>
             <div className="loading-shell__bar" aria-hidden="true" />
           </div>

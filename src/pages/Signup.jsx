@@ -55,9 +55,9 @@ export default function Signup() {
         animate={{ opacity: 1, x: 0 }}
         transition={{ duration: 0.6 }}
       >
-        <p className="ls-auth__brand-eyebrow">LAUNCH SCOPE</p>
+        <p className="ls-auth__brand-eyebrow">LAUNCHSCOPE</p>
         <h1 className="ls-auth__brand-title">
-          Join Mission Control.
+          Join Launch Intelligence.
         </h1>
         <p className="ls-auth__brand-text">
           Create an account to track launches worldwide and build your

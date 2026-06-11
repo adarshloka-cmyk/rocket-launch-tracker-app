@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link, NavLink, useLocation } from "react-router-dom";
 import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
-import LaunchScopeMark from "./LaunchScopeMark";
+
 
 function scrollToHero() {
   const hero = document.getElementById("hero");
@@ -95,13 +95,12 @@ export default function Navbar({ user, onLogout }) {
           <Link
             to="/"
             className="ls-navbar__brand"
-            aria-label="LAUNCH SCOPE home"
+            aria-label="LAUNCHSCOPE home"
             onClick={handleBrandClick}
           >
-            <LaunchScopeMark className="ls-navbar__logo" size={36} />
             <span className="ls-navbar__brand-text">
-              <span className="ls-navbar__brand-name">LAUNCH SCOPE</span>
-              <span className="ls-navbar__brand-tag">Mission Control</span>
+              <span className="ls-navbar__brand-name">LAUNCHSCOPE</span>
+              <span className="ls-navbar__brand-tag">Launch Intelligence</span>
             </span>
           </Link>
 

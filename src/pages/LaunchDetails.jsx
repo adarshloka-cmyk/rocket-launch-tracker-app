@@ -79,7 +79,7 @@ export default function LaunchDetails() {
       <div className="ls-empty ls-empty--page">
         <p className="ls-empty__title">Launch not found</p>
         <Link to="/" className="ls-btn ls-btn--primary">
-          Return to Mission Control
+          Return to LAUNCHSCOPE
         </Link>
       </div>
     );

@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { motion, useReducedMotion } from "framer-motion";
 import OptimizedImage from "./OptimizedImage";
 import { FALLBACK_CARD_IMAGE } from "../utils/imageOptimizer";
+import { getNormalizedStatus, LAUNCH_STATES } from "../utils/launchStatus";
 
 function getStatusClass(status) {
   const name = status?.toLowerCase() || "";
@@ -75,6 +76,25 @@ export default function LaunchCard({
   }, [launch.net]);
 
   const statusName = launch.status?.name || "TBD";
+  const normalizedState = getNormalizedStatus(statusName);
+  const showCountdown = normalizedState === LAUNCH_STATES.UPCOMING && !countdown.launched;
+
+  function getStatusTextClass(state) {
+    if (state === LAUNCH_STATES.SUCCESS || state === LAUNCH_STATES.IN_FLIGHT) {
+      return "ls-card__status-text--success";
+    }
+    if (state === LAUNCH_STATES.FAILURE) {
+      return "ls-card__status-text--failure";
+    }
+    if (state === LAUNCH_STATES.HOLD) {
+      return "ls-card__status-text--hold";
+    }
+    if (state === LAUNCH_STATES.TBD) {
+      return "ls-card__status-text--tbd";
+    }
+    return "ls-card__status-text--upcoming";
+  }
+
   const rocketName =
     launch.rocket?.configuration?.full_name ||
     launch.rocket?.configuration?.name ||
@@ -117,11 +137,11 @@ export default function LaunchCard({
         </div>
 
         <div className="ls-card__countdown-wrap">
-          <p className="ls-card__countdown-label-top">T-minus</p>
+          <p className="ls-card__countdown-label-top">
+            {showCountdown ? "T-minus" : "Status"}
+          </p>
           <div className="ls-card__countdown" aria-live="polite">
-            {countdown.launched ? (
-              <span className="ls-card__countdown-launched">Launched</span>
-            ) : (
+            {showCountdown ? (
               <>
                 <div className="ls-card__countdown-unit">
                   <span className="ls-card__countdown-val">
@@ -151,6 +171,10 @@ export default function LaunchCard({
                   <span className="ls-card__countdown-label">Sec</span>
                 </div>
               </>
+            ) : (
+              <span className={`ls-card__countdown-launched ${getStatusTextClass(normalizedState)}`}>
+                {statusName}
+              </span>
             )}
           </div>
         </div>

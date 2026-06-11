@@ -21,7 +21,7 @@ export default function Favourites({
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
       >
-        <p className="ls-page-hero__eyebrow">Mission Control · Watchlist</p>
+        <p className="ls-page-hero__eyebrow">Launch Intelligence · Watchlist</p>
         <h1 className="ls-page-hero__title">Saved missions</h1>
         <p className="ls-page-hero__sub">
           Monitor {favouriteLaunches.length} mission

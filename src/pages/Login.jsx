@@ -51,7 +51,7 @@ export default function Login() {
         animate={{ opacity: 1, x: 0 }}
         transition={{ duration: 0.6 }}
       >
-        <p className="ls-auth__brand-eyebrow">LAUNCH SCOPE</p>
+        <p className="ls-auth__brand-eyebrow">LAUNCHSCOPE</p>
         <h1 className="ls-auth__brand-title">
           Track Humanity&apos;s Next Launch.
         </h1>

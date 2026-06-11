@@ -9,7 +9,7 @@ import {
 import { Link } from "react-router-dom";
 import LaunchCard from "../components/LaunchCard";
 import CustomSelect from "../components/CustomSelect";
-import { matchesStatusFilter } from "../utils/launchStatus";
+import { matchesStatusFilter, getNormalizedStatus, LAUNCH_STATES } from "../utils/launchStatus";
 
 const STATUS_OPTIONS = [
   { value: "All", label: "All Statuses" },
@@ -90,6 +90,26 @@ export default function Home({
   }, [launches]);
 
   const spotlightCountdown = useSpotlightCountdown(nextLaunch?.net);
+
+  const nextLaunchStatusName = nextLaunch?.status?.name || "TBD";
+  const nextLaunchState = getNormalizedStatus(nextLaunchStatusName);
+  const isNextLaunchUpcoming = nextLaunch && nextLaunchState === LAUNCH_STATES.UPCOMING && !spotlightCountdown.launched;
+
+  function getNextLaunchStatusTextClass(state) {
+    if (state === LAUNCH_STATES.SUCCESS || state === LAUNCH_STATES.IN_FLIGHT) {
+      return "ls-spotlight__status-val--success";
+    }
+    if (state === LAUNCH_STATES.FAILURE) {
+      return "ls-spotlight__status-val--failure";
+    }
+    if (state === LAUNCH_STATES.HOLD) {
+      return "ls-spotlight__status-val--hold";
+    }
+    if (state === LAUNCH_STATES.TBD) {
+      return "ls-spotlight__status-val--tbd";
+    }
+    return "ls-spotlight__status-val--upcoming";
+  }
 
   const heroImage =
     nextLaunch?.image || launches.find((l) => l.image)?.image || FALLBACK_HERO;
@@ -288,12 +308,12 @@ export default function Home({
             transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
           >
             <p className="ls-hero__brand-mobile" aria-hidden="true">
-              LAUNCH SCOPE
+              LAUNCHSCOPE
             </p>
 
             <p className="ls-hero__eyebrow">
               <span className="ls-hero__eyebrow-icon" aria-hidden="true" />
-              Mission Control
+              Launch Intelligence
             </p>
 
             <h1 id="hero-heading" className="ls-hero__title">
@@ -324,26 +344,36 @@ export default function Home({
               animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.7, delay: 0.2 }}
             >
-              <p className="ls-spotlight__label">Next Launch</p>
+              <p className="ls-spotlight__label">
+                {isNextLaunchUpcoming ? "Next Launch" : "Launch Status"}
+              </p>
               <h2 className="ls-spotlight__name">{nextLaunch.name}</h2>
 
               <div className="ls-spotlight__countdown" aria-live="polite">
-                {[
-                  ["Days", spotlightCountdown.days],
-                  ["Hrs", spotlightCountdown.hours],
-                  ["Min", spotlightCountdown.minutes],
-                  ["Sec", spotlightCountdown.seconds],
-                ].map(([label, val], i) => (
-                  <div key={label} className="ls-spotlight__countdown-cell">
-                    {i > 0 && (
-                      <span className="ls-spotlight__sep" aria-hidden="true">
-                        :
-                      </span>
-                    )}
-                    <span className="ls-spotlight__val">{val}</span>
-                    <span className="ls-spotlight__unit">{label}</span>
-                  </div>
-                ))}
+                {isNextLaunchUpcoming ? (
+                  <>
+                    {[
+                      ["Days", spotlightCountdown.days],
+                      ["Hrs", spotlightCountdown.hours],
+                      ["Min", spotlightCountdown.minutes],
+                      ["Sec", spotlightCountdown.seconds],
+                    ].map(([label, val], i) => (
+                      <div key={label} className="ls-spotlight__countdown-cell">
+                        {i > 0 && (
+                          <span className="ls-spotlight__sep" aria-hidden="true">
+                            :
+                          </span>
+                        )}
+                        <span className="ls-spotlight__val">{val}</span>
+                        <span className="ls-spotlight__unit">{label}</span>
+                      </div>
+                    ))}
+                  </>
+                ) : (
+                  <span className={`ls-spotlight__status-val ${getNextLaunchStatusTextClass(nextLaunchState)}`}>
+                    {nextLaunchStatusName}
+                  </span>
+                )}
               </div>
 
               <div className="ls-spotlight__meta">
@@ -362,7 +392,7 @@ export default function Home({
                 to={`/launch/${nextLaunch.id}`}
                 className="ls-spotlight__link"
               >
-                View mission →
+                View mission
               </Link>
             </motion.aside>
           )}

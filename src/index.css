@@ -1,6 +1,6 @@
-/* LAUNCH SCOPE — Global foundation (Phase 1) */
+/* LAUNCHSCOPE — Global foundation · v3.1 Aerospace Identity */
 
-@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Syne:wght@500;600;700;800&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,300;0,14..32,400;0,14..32,500;0,14..32,600;0,14..32,700;0,14..32,800&display=swap");
 
 *,
 *::before,
@@ -11,51 +11,66 @@
 }
 
 :root {
-  /* Space palette */
-  --ls-void: #020408;
-  --ls-deep: #050a14;
-  --ls-surface: #0a1220;
-  --ls-elevated: #0f1a2e;
-  --ls-glass: rgba(10, 18, 32, 0.72);
-  --ls-glass-border: rgba(255, 255, 255, 0.06);
+  /* ── Deep Space Palette ──────────────────────────────────────────────────
+     Space viewed from orbit. Cold. Vast. Precise. Not dark-mode grey.
+     ──────────────────────────────────────────────────────────────────────── */
 
-  /* Accent */
-  --ls-accent: #3b82f6;
-  --ls-accent-bright: #60a5fa;
-  --ls-accent-glow: rgba(59, 130, 246, 0.35);
-  --ls-violet: #8b5cf6;
+  /* Backgrounds — deep space black with orbital navy warmth */
+  --ls-void: #020408;          /* Deep space — the void between stars */
+  --ls-deep: #040814;          /* Orbital night — just above atmosphere */
+  --ls-surface: #0a1124;       /* Instrument panel — mission console */
+  --ls-elevated: #101b35;      /* Above surface — raised panels */
+  --ls-glass: rgba(8, 14, 28, 0.75);
 
-  /* Text */
-  --ls-text: #f1f5f9;
-  --ls-text-muted: #94a3b8;
-  --ls-text-dim: #64748b;
+  /* Borders — cold space glass */
+  --ls-glass-border: rgba(96, 165, 250, 0.08);  /* Orbital blue tint */
+  --ls-border-strong: rgba(96, 165, 250, 0.16);
+
+  /* Accent — Orbital Blue. Cold. Technical. Astronomical. */
+  --ls-accent: #1d4ed8;            /* Primary orbital blue */
+  --ls-accent-bright: #3b82f6;    /* Active state */
+  --ls-accent-light: #60a5fa;     /* Highlights */
+  --ls-accent-glow: rgba(37, 99, 235, 0.12);
+  --ls-accent-subtle: rgba(37, 99, 235, 0.04);
+
+  /* Nebula accent — deep indigo/violet for atmosphere */
+  --ls-nebula: #4f46e5;
+  --ls-nebula-dim: rgba(79, 70, 229, 0.12);
+
+  /* Text — Starlight whites */
+  --ls-text: #f8fafc;           /* Starlight — pure white with warmth */
+  --ls-text-muted: #cbd5e1;     /* Dim star — mid-tone slate */
+  --ls-text-dim: #526175;       /* Deep field — barely visible */
 
   /* Status */
   --ls-status-go: #22c55e;
-  --ls-status-tbd: #eab308;
+  --ls-status-tbd: #f59e0b;
   --ls-status-success: #10b981;
   --ls-status-failure: #ef4444;
 
-  /* Typography */
-  --ls-font-display: "Syne", system-ui, sans-serif;
-  --ls-font-body: "Inter", system-ui, sans-serif;
+  /* ── Typography ──────────────────────────────────────────────────────────
+     Inter — engineered for precision. Used by SpaceX, Linear, Vercel.
+     ──────────────────────────────────────────────────────────────────────── */
+  --ls-font-display: "Inter", system-ui, -apple-system, sans-serif;
+  --ls-font-body: "Inter", system-ui, -apple-system, sans-serif;
 
-  /* Scale */
-  --ls-radius-sm: 10px;
-  --ls-radius-md: 16px;
-  --ls-radius-lg: 24px;
-  --ls-radius-xl: 32px;
+  /* ── Scale ── */
+  --ls-radius-sm: 6px;
+  --ls-radius-md: 10px;
+  --ls-radius-lg: 14px;
+  --ls-radius-xl: 18px;
 
-  /* Motion */
+  /* ── Motion — snappy, purposeful ── */
   --ls-ease-out: cubic-bezier(0.16, 1, 0.3, 1);
-  --ls-duration-fast: 0.2s;
-  --ls-duration: 0.35s;
-  --ls-duration-slow: 0.6s;
+  --ls-ease-in-out: cubic-bezier(0.4, 0, 0.2, 1);
+  --ls-duration-fast: 0.15s;
+  --ls-duration: 0.25s;
+  --ls-duration-slow: 0.5s;
 
-  /* Layout */
-  --ls-nav-height: 72px;
-  --ls-max-width: 1280px;
-  --ls-page-gutter: clamp(1.25rem, 4vw, 3rem);
+  /* ── Layout ── */
+  --ls-nav-height: 58px;
+  --ls-max-width: clamp(1200px, 94vw, 1680px);
+  --ls-page-gutter: clamp(1rem, 4vw, 2.5rem);
 }
 
 html {
@@ -63,13 +78,8 @@ html {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  html {
-    scroll-behavior: auto;
-  }
-
-  *,
-  *::before,
-  *::after {
+  html { scroll-behavior: auto; }
+  *, *::before, *::after {
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
@@ -78,6 +88,7 @@ html {
 
 body {
   font-family: var(--ls-font-body);
+  font-feature-settings: "cv02", "cv03", "cv04", "cv11";
   background: var(--ls-void);
   color: var(--ls-text);
   line-height: 1.6;
@@ -91,24 +102,17 @@ body {
   min-height: 100vh;
 }
 
-a {
-  color: inherit;
-}
+a { color: inherit; }
 
-button,
-input,
-select,
-textarea {
-  font: inherit;
-}
+button, input, select, textarea { font: inherit; }
 
 :focus-visible {
   outline: 2px solid var(--ls-accent-bright);
-  outline-offset: 3px;
+  outline-offset: 2px;
 }
 
 ::selection {
-  background: rgba(59, 130, 246, 0.35);
+  background: rgba(37, 99, 235, 0.3);
   color: var(--ls-text);
 }
 
