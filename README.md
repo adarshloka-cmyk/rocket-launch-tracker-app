@@ -78,7 +78,7 @@ launchscope/
 ### Clone the repository
 
 ```bash
-git clone https://github.com/your-username/rocket-launch-tracker-app.git
+git clone https://github.com/adarshloka-cmyk/rocket-launch-tracker-app.git
 cd rocket-launch-tracker-app
 ```
 
